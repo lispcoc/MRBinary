@@ -1,0 +1,445 @@
+struct MRItem
+{
+	long   Number;
+	long    Type; // 4:槍 6:弓
+	long    Rank;
+	long    Unknown;
+	long    Price?;
+	long    WA_CRT_MA;
+	long    PD_MD_U;
+	long    State_?_?; // 1:ALL
+	long    State%_?_?;
+	long    Wght_TwoHand_U;
+	long    HP;
+	long    MP;
+	long    St;
+	long    Str;
+	long    Vit;
+	long    Dex;
+	long    Agi;
+	long    Mag;
+	long    Cha;
+	long    AP;
+	long    Int;
+	long    Com;
+	long    Unknown;
+	long    Unknown;
+	long    Unknown;
+	long    En_En_?;
+	long    Unknown;
+	long    Elm_TypA; // Elm 6:闇 11:灼熱 22:氷結 55:閃光
+	long    Ex_ExHt_ExAt; // EX 1:ElmDmg 25:HP回復
+	long    Unknown;
+	long    Unknown;
+	long    Block%_Guard%_GP;
+	long    BlockP_BlockM_?; // BlockM 1:全 3:水
+	long    Skill1_Skill2_Arts;
+	long    Unknown;
+	long    Unknown;
+	long    Unknown;
+	long    Unknown;
+	long    Unknown;
+	long    Unknown;
+	long    Unknown;
+	long    Unknown;
+	BYTE    Name[32];
+	BYTE    Desc[64];
+	long    Type_Iron_?;
+	long    Unknown;
+	long    Unknown;
+	long    Unknown;
+	long    Unknown;
+	long    Unknown;
+	long    Smith_?_?;
+	long    EnArts_?_?;
+	long    Unknown;
+	long    Unknown;
+};
+
+struct LOGFONT
+{
+	LONG    lfHeight;
+	LONG    lfWidth;
+	LONG    lfEscapement;
+	LONG    lfOrientation;
+	LONG    lfWeight;
+	BYTE    lfItalic;
+	BYTE    lfUnderline;
+	BYTE    lfStrikeOut;
+	BYTE    lfCharSet;
+	BYTE    lfOutPrecision;
+	BYTE    lfClipPrecision;
+	BYTE    lfQuality;
+	BYTE    lfPitchAndFamily;
+	BYTE    lfFaceName[32];
+};
+
+struct RGBQUAD
+{
+	BYTE	rgbBlue ;
+	BYTE	rgbGreen ;
+	BYTE	rgbRed ;
+	BYTE	rgbReserved ;
+} ;
+
+struct BITMAPFILEHEADER
+{
+	WORD    bfType; 
+	DWORD   bfSize; 
+	WORD    bfReserved1; 
+	WORD    bfReserved2; 
+	DWORD   bfOffBits; 
+};
+
+struct BITMAPINFOHEADER
+{
+	DWORD  biSize; 
+	LONG   biWidth; 
+	LONG   biHeight; 
+	WORD   biPlanes; 
+	WORD   biBitCount ;
+	DWORD  biCompression; 
+	DWORD  biSizeImage; 
+	LONG   biXPelsPerMeter ;
+	LONG   biYPelsPerMeter; 
+	DWORD  biClrUsed; 
+	DWORD  biClrImportant; 
+};
+
+struct BITMAPINFO
+{
+	BITMAPINFOHEADER	bmiHeader ;
+	RGBQUAD			bmiColors[256] ;
+} ;
+
+
+struct BITMAP256_SAMPLE
+{
+	BITMAPFILEHEADER	FileHeader ;
+	BITMAPINFOHEADER	bmiHeader ;
+	RGBQUAD			bmiColors[256] ;
+} ;
+
+struct SYSTEM_CONFIGURATION
+{
+
+  //
+  // IGD.
+  //
+
+  BYTE IgdBootType;
+  BYTE IgdSecondaryBootType;
+  BYTE IgdActiveLFP;
+  BYTE IgdLFPColorDepth;
+  BYTE PrimaryDisplaySelect;
+  BYTE GfxTurboIMON;
+
+  //
+  // VIDEO LCD Control.
+  //
+
+  BYTE IgdLcdPLType;
+  BYTE IgdLcdPLScale;
+  BYTE IgdLcdPTMode;
+  BYTE IgdLcdInverter;
+  BYTE IgdLcdIGmchBlc;
+  BYTE IgdLcdIBia;
+  BYTE IgdLcdSSCC;
+
+  //
+  // VIDEO TV Control.
+  //
+
+  BYTE IgdTV1Standard;
+  BYTE IgdTV2Standard;
+
+  //
+  // DVMT5.0 Graphic memory setting.
+  //
+
+  BYTE IgdPowerConservation;
+  BYTE IgdDvmt50TotalAlloc;
+
+  //
+  // Intel VTD.
+  //
+
+  BYTE VtdSupport;
+
+  //
+  // PCH_SATA_CONFIG.
+  //
+
+  BYTE HdcInterfaceMode;
+
+  //
+  // System Agent.
+  //
+
+  BYTE MemoryTck;
+
+  //
+  // PCI_EXPRESS_CONFIG
+  //
+
+  BYTE NatPcieEnable;
+  BYTE PCIeSrIOV;
+  BYTE Phy_PciePortSel;
+
+  //
+  // Processor Setting.
+  //
+
+  BYTE NonTurboRatio;
+
+  //
+  // Not a SETUP item, used by BIOS to pass CPUID to SETUP items.
+  //
+
+  DWORD CpuFamilyModel;
+  BYTE CpuCoreNumber;
+  BYTE CpuThreadNumberPerCore;
+  BYTE TurboModeAvailable;
+  BYTE XmpProfileSupport;
+
+  //
+  // Processor Power Management configuration.
+  //
+
+  BYTE EnableTm;
+  BYTE RtcS4WakeEnable;
+  BYTE EnablePmTimer;
+  BYTE EnableThermalOffset;
+  BYTE EnableDTSCalibration;
+  BYTE ActiveThermalTripPoint;
+  BYTE ActiveThermalTripPoint1;
+  BYTE PassiveThermalTripPoint;
+  BYTE PassiveTc1Value;
+  BYTE PassiveTc2Value;
+  BYTE PassiveTspValue;
+  BYTE CriticalThermalTripPoint;
+  BYTE ApicEnabled;
+  BYTE AlsEnable;
+  BYTE EmaEnable;
+  BYTE MefEnable;
+  BYTE OnboardCom;
+  BYTE OnboardCir;
+
+  //
+  // ASF.
+  //
+
+  BYTE Asf;
+  BYTE AsfBootTarget;
+
+
+  //
+  // Miscellaneous options.
+  //
+
+  BYTE EnableClockSpreadSpec;
+  WORD MchCridKey[3];
+  WORD PchCridKey[3];
+  BYTE PlatformSio;
+  BYTE HermosaBeachBootMenu;
+
+  //
+  // Power and Temperature Instrucmention Details enable/disable option.
+  //
+
+  BYTE PtidEnable;
+
+  //
+  // Smbios event log.
+  //
+
+  BYTE SmbiosEventLogEnable;
+
+  //
+  // UCR Setting.
+  //
+
+  BYTE UCREnable;
+  BYTE RPB_TerminalType;
+  BYTE RPB_Baudrate;
+
+  BYTE MeSetupMenu;
+  BYTE AmtSetupMenu;
+
+  //
+  // Intel Txt.
+  //
+
+  BYTE TxtSupport;
+
+  //
+  // Lan OPROM Select.
+  //
+
+  BYTE LanOprom;
+
+  //
+  // Thermal Reporting.
+  //
+
+  BYTE ThermalDataReportEn;
+  BYTE HddPasswordStatus;
+
+  //
+  // Other.
+  //
+
+  BYTE StateAfterG3;
+  BYTE KeyboardLayout;
+  BYTE SgMode;
+  BYTE SgCard;
+  BYTE Rsvd[20];
+
+  //
+  // ICC Overclocking
+  //
+
+  BYTE WatchDogICC;
+  BYTE TurnOffPciCLKs;
+  BYTE LockICCReg;
+  BYTE IccApplyMethods;
+  BYTE IccManipulation;
+
+  BYTE ClockStatus[8];
+  BYTE ClockCurSscMode[8];
+  WORD ClockNewFreq[8];
+  BYTE ClockSupportSsc[8];
+  BYTE ClockNewSscMode[8];
+  BYTE ClockNewSscSpread[8];
+  BYTE ClockDmiPegRatio[8];
+
+  //
+  // Rapid Start
+  //
+
+  BYTE EnableRapidStart;
+  BYTE EntryOnS3RtcWake;
+  BYTE EntryOnS3CritBattWake;
+  WORD S3WakeTimerMin;
+  BYTE RapidStartCriticalBatteryThreshold;
+
+  //
+  // Platform Security
+  //
+
+  BYTE BiosRegionProtect;
+  BYTE SmmLock;
+
+  //
+  // ISCT
+  //
+
+  BYTE ISCTConfigured;
+  BYTE ISCTNotificationControl;
+  BYTE ISCTWLANPowerControl;
+  BYTE ISCTWWANPowerControl;
+  BYTE ISCTSASDFormat;
+
+  //
+  // Gop Control.
+  //
+
+  BYTE IgdGopSetupMenu;
+  BYTE IgdSetBrightnessLevel;
+  BYTE IgdBootDisplay;
+  BYTE NumOfIgdChildCtl;
+
+  //
+  // ACPI 5.0 FACP - Low Power S0 Idle Capable enable
+  //
+
+  BYTE LowPowerS0IdleEnable;
+
+  //
+  // ACPI Runtime D3 - Runtime D3 enable
+  //
+
+  BYTE  RuntimeD3Enable;
+  BYTE  D0transitionDelay;
+  BYTE  D3transitionDelay;
+  WORD AudioD0Delay;
+  WORD ADSP0Delay;
+  WORD I2C0D0Delay;
+  WORD I2C1D0Delay;
+  BYTE  PstateCapping;
+  BYTE  UsbPort1RTD3support;
+  BYTE  UsbPort2RTD3support;
+  BYTE  I2C0SensorHub;
+  BYTE  ZPODD;
+
+  //
+  // Audio Codec Select
+  //
+
+  BYTE  CodecSelect;
+
+  //
+  // Storage for CPU CTDP support.
+  //
+
+  BYTE CtdpSupported;
+
+  //
+  // Rapid Start
+  //
+
+  BYTE RapidStartDisplaySaveRestore;
+  BYTE RapidStartDisplayType;
+
+
+  //
+  // ISCT Timer Choice(new added)
+  //
+
+  BYTE ISCTTimerChoice;
+
+  //
+  // This is a fixed-size variable. New fields must be added immediately before
+  // ReservedBuffer, and the reserved space must be reduced to keep the size constant.
+  //
+
+//--------------------------------------------------------------------
+// 管理番号：PFU-20130802-1001-1000
+// 作業内容：SYSTEM_CONFIGURATIONの拡張
+//
+  BYTE ReservedBuffer[28];
+
+  // ここに新しい項目を追加していくことで、Variable内の
+  // 既存の項目のオフセットが変わらないようにします。
+
+  BYTE UsbPowerSupply;
+  BYTE OnBoardLan1;
+  BYTE OnBoardLan2;
+  BYTE OnBoardLan3;
+  BYTE S1State;
+  BYTE S2State;
+  BYTE S3State;
+  BYTE S4State;
+  BYTE S5State;
+  BYTE FanControl;
+  BYTE FanDuty;
+  BYTE CpuFanControl;
+  BYTE CpuFanDuty;
+  BYTE PciExpressComplianceTest;
+  BYTE UsbWakeupState;
+  BYTE PciWakeupState;
+
+  //
+  // 異なるBIOS VersionのBIOS.capを使用した場合にクライシスリカバリが
+  // 動作しなくなるためReservedBufferを減らさずに項目を追加しないこと。
+  // SYSTEM_CONFIGURATIONのサイズが増えると確保したバッファに収まらず
+  // GetVariableがエラーリターンしてしまう。
+  //
+
+//
+//  BYTE ReservedBuffer[44];     // Must be the last member in this structure.
+//
+// 管理番号：PFU-20130802-1001-1000
+//--------------------------------------------------------------------
+
+};
