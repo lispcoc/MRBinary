@@ -10,6 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "encoding-japanese": "^2.0.0"
+    "commander": "^9.3.0"
   }
 }

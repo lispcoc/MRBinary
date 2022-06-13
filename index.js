@@ -1,90 +1,149 @@
-var iconv = require('iconv-lite');
 var fs = require('fs');
-var encoding = require('encoding-japanese');
 const { exit } = require('process');
+const type = require('./def');
+const commander = require("commander");
 
-var data00 = fs.readFileSync('adata00.dat');
-var data01 = fs.readFileSync('adata01.dat');
-var data02 = fs.readFileSync('adata02.dat');
-var data03 = fs.readFileSync('adata03.dat');
+commander
+    .option('-i, --input [file]', 'help')
+    .parse(process.argv);
+console.log(commander.getOptionValue("input"));
 
-var data00_u8 = new Uint8Array(data00);
-var data01_u8 = new Uint8Array(data01);
-var data02_u8 = new Uint8Array(data02);
-var data03_u8 = new Uint8Array(data03);
+var targets = ["anem", "ahelp", "adata00", "adata03"];
+var targets = ["tekinem", "endata00"];
 
-var item_array = [];
-
-const len_00 = 0xA8;
-const len_01 = 0x20;
-const len_02 = 0x40;
-const len_03 = 0x58;
-const num = parseInt(data01_u8.length / len_01);
-
-console.log('num = ' + num);
-
-for (var i = 0; i < num; i++) {
-    var data = new Uint8Array(len_00 + len_01 + len_02 + len_03);
-    var p_data00 = data00_u8.slice(i * len_00, (i + 1) * len_00);
-    var p_data01 = data01_u8.slice(i * len_01, (i + 1) * len_01);
-    var p_data02 = data02_u8.slice(i * len_02, (i + 1) * len_02);
-    var p_data03 = data03_u8.slice(i * len_03, (i + 1) * len_03);
-    pos = 0;
-    p_data00.forEach(e => {
-        data[pos] = e;
-        pos++;
+if(commander.getOptionValue("input")) {
+    // output patch
+    var json_file = commander.getOptionValue("input");
+    var item_array = JSON.parse(fs.readFileSync(json_file));
+    targets.forEach(t => {
+        var buf = [];
+        if(type[t].type == "binary") {
+            item_array.forEach(e => {
+                var def = type[t].def;
+                var len = type[t].len;
+                var obj = e[t];
+                var res = new Uint8Array(len);
+                for(const key in obj) {
+                    const val = obj[key];
+                    const found = def.find(e => {
+                        return key == e.name
+                        || key == generateKey(e.offset, e.mul ? e.mul : 1)
+                    });
+                    if(found) {
+                        const offset = found.offset;
+                        const mul = found.mul ? found.mul : 1;
+                        var tmp = read32(res, offset);
+                        write32(res, offset, tmp + val * mul);
+                    }
+                }
+                buf.push(res);
+            });
+            fs.writeFileSync(t + '.dat', joinU8Array(buf));
+        } else {
+            //text
+            item_array.forEach(e => {
+                buf.push(e[t]);
+            });
+            fs.writeFileSync(t + '.txt', buf.join("\n"));
+        }
     });
-    p_data01.forEach(e => {
-        data[pos] = e;
-        pos++;
+} else {
+    // generate json
+    var item_array = [];
+    var set = {};
+    var len = 0;
+    targets.forEach(t => {
+        var buf = [];
+        if(type[t].type == "binary") {
+            var file = fs.readFileSync(t + '.dat');
+            var u8 = new Uint8Array(file);
+            const num = parseInt(u8.length / type[t].len);
+            for (var i = 0; i < num; i++) {
+                var json = {};
+                var p_data = u8.slice(i * type[t].len, (i + 1) * type[t].len);
+                type[t].def.forEach(e => {
+                    var max = e.max ? e.max : 0xFFFFFFFF;
+                    var mul = e.mul ? e.mul : 1;
+                    var v = (parseInt(u8ToNumber(p_data, e.offset) / mul)) % (max + 1);
+                    var key = e.name == "?" ? generateKey(e.offset, mul) : e.name;
+                    json[key] = v;
+                });
+                buf.push(json);
+            }
+        } else {
+            var file = fs.readFileSync(t + '.txt');
+            var lines = [];
+            file.toString().split("\n").forEach(l => {
+                lines.push(l);
+                if(lines.length == type[t].line) {
+                    buf.push(lines.join("\n"));
+                    lines = [];
+                }
+            });
+        }
+        set[t] = buf;
+        len = len > buf.length ? len : buf.length;
     });
-    p_data02.forEach(e => {
-        data[pos] = e;
-        pos++;
-    });
-    p_data03.forEach(e => {
-        data[pos] = e;
-        pos++;
-    });
-    var str = new TextDecoder("shift_jis").decode(p_data01.slice(0, p_data01.findIndex(v => v == 0)));
-    fs.writeFileSync('out/' + str + '_data' + i + '.dat', data);
+
+    for(var i = 0; i < len; i++) {
+        item_array[i] = {};
+        targets.forEach(t => {
+            item_array[i][t] = set[t][i];
+        });
+    }
+
+    fs.writeFileSync(
+        'out.json',
+        JSON.stringify(item_array,undefined,4)
+        );
 }
 
 exit();
 
-fs.readFile('adata00.dat', function(err, content) {
-    if (err) {
-        console.error(err);
+function read32(u8, offset) {
+    var val = 0;
+    for(var i = 3; i >= 0; i--) {
+        val = val << 8;
+        val += u8[offset + i];
     }
-    var result = {
-        bitmap: '',
-        text: '',
-        flags: []
-    };
-    //  バイト操作用のバイナリバッファを作成する
-    var buf = new Buffer(content, 'binary');
-    //  BMPファイルのヘッダは
-    //  'B', 'M'の後ろ、3バイト目から7バイト目にファイルサイズが32bit整数(リトルエンディアン)で入っている
-    var bitmapSize = buf.readUInt32LE(2);
-    //  画像データのビットマップファイルとしての長さがわかったので
-    //  データとビットマップを分離する
-    var bitmap = buf.slice(0, bitmapSize - 1);
-    //  結果セットにはとりあえずDataURI形式で保存する
-    //  ※ただでさえデカくなりがちなBMPに実運用でこれはあまりお勧めしません
-    result.bitmap = 'data:image/bmp;base64,' + bitmap.toString('base64');
+    return val;
+}
 
-    var dataBlock = buf.slice(bitmapSize, buf.length - 1);
-    //  データブロック先頭の256バイトは何かしらの暗号化がなされた元Shift JISの文字列が入っている
-    //  my_decrypt.decrypt()はその復号を行う
-    //  SJISはそのままだとJavaScript内部で文字列としては取り扱えないので
-    //  iconv-liteを使ってshift_jisからの変換をはかる
-    result.text = iconv.decode(my_decrypt.decrypt(dataBlock.slice(0, 0xff)), 'shift_jis');
-    //  データブロックの257バイト目には有効なフラグの数が16bit整数(リトルエンディアン)入っていて
-    var flags = dataBlock.readUInt16LE(0x100);
-    //  フラグは各1バイト
-    for (var i = 0; i < flags; i++) {
-        result.flags.push(dataBlock.readUInt8(0x102 + i));
+function write32(u8, offset, val) {
+    for(var i = 0; i < 4; i++) {
+        u8[offset + i] = val % 0x100;
+        val = val >> 8;
     }
-    //  終わり
-    console.log(result);
-});
+}
+
+function generateKey(offset, mul) {
+    return "Offset_" + offset.toString(16).padStart(2, '0') + '_' + mul;
+}
+
+function u8ToNumber(u8, start = 0, len = 4) {
+    var p = 0;
+    var res = 0;
+    for(var i = start; i < start + len; i++) {
+        res += u8[i] * (0x100 ** p);
+        p++;
+    }
+    return res;
+}
+
+function joinU8Array(array = []) {
+    var len = 0;
+    var ptr = 0;
+    array.forEach(e => {
+        len += e.length;
+    });
+    var ret = new Uint8Array(len);
+
+    array.forEach(e => {
+        e.forEach(e => {
+            ret[ptr] = e;
+            ptr++;
+        })
+    });
+
+    return ret;
+}
